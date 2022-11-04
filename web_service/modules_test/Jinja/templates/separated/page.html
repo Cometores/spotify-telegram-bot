@@ -1,0 +1,10 @@
+{% import 'dialogs.html' as dlg %}
+{% from 'dialogs.html' import dialog_2 as dlg2 %}
+
+{%- include 'header.html' ignore missing %}
+
+<p>Содержимое страницы</p>
+{{ dlg.dialog_1('Внимание', 'Это тестовый диалог') }}
+{{ dlg2('Attention') }}
+
+{% include 'footer.html' %}

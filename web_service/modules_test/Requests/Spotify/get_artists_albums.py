@@ -1,7 +1,9 @@
 import requests
 
 SPOTIFY_ARTIST_ALBUMS = "https://api.spotify.com/v1/artists/6Ghvu1VvMGScGpOUJBAHNH/albums"
-ACCESS_TOKEN = "BQA4mntotCYIa6pKmeClM6ZvqgriS8Sl2Iel2BC32RSnLYDfM9zqms6YmTLD0gEfops3TfYTDgViDwqMHSnKhZhg7jXw6Sayu0NCAnpOwj3e2qoGyWqTxtTRrwozWWMGMDsgvFS0Z02GsA_Es7E4D9sWP_73oKrHEoO79nzUyDcgPgCFy73pJQ0EmgHCw0VbXh1mFH4y-xPOzXfzOfKQfNwktGqOdumAlS-u3F1q_0WzxLPa7IexxDH7CTpNJ4Ee"
+SPOTIFY_AlBUM_TRACKS = "https://api.spotify.com/v1/albums/0FqxYHewG9WU9uaAbuzGtk/tracks"
+
+ACCESS_TOKEN = "BQAiqiXxO6cMbHOT4MGypUhVvFh40R28E3M51G73DMp06x5yqrRj-ecE1dQMm4obtomA5qqdgUsWK4czpkeos-8_VcsbmTtIbpMhXj6eBJXjPFegKmgKb1gUWaA1MlS-QJ6zwO1rjox5Sd_1gJGTckxPjLNJVUckemPwKKXeN2q960O9MPv0u8ba4prsjjRyT6M"
 
 def get_artist_albums():
     response = requests.get(

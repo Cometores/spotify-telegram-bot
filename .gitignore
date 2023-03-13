@@ -5,4 +5,5 @@
 #My ignored files
 /.idea
 /.venv
-/.__pychace__
+__pycache__
+settings.json

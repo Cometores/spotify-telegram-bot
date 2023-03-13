@@ -2,19 +2,17 @@ import datetime
 import json
 import requests
 import base64
+from dataclasses import dataclass
 
 
+@dataclass
 class AccessToken:
-    value: str = None
-    valid_to: datetime.datetime = None
-
-    def __init__(self, value: str, valid_to: datetime.datetime):
-        self.value = value
-        self.valid_to = valid_to
+    _value: str = None
+    _valid_to: datetime.datetime = None
 
     def __str__(self):
-        return f"AccessToken value: {self.value}\n" \
-               f"valid to: {self.valid_to.time()}"
+        return f"AccessToken value: {self._value}\n" \
+               f"valid to: {self._valid_to.time()}"
 
 
 class SpotifyClient:
@@ -31,8 +29,6 @@ class SpotifyClient:
 
         self.set_acces_token()
 
-
-    '''Obtaining an access-token for the Spotify API'''
     def set_acces_token(self):
         # Auth-Login information is transmitted in base64 format
         auth_header_bytes = base64.b64encode(bytes(
@@ -52,18 +48,14 @@ class SpotifyClient:
 
         self.access_token = AccessToken(value, valid_to)
 
-
-    '''Preparing a request auth-header token'''
     def prepare_auth_header(self):
-        if self.access_token is None or datetime.datetime.now() > self.access_token.valid_to:
+        if self.access_token is None or datetime.datetime.now() > self.access_token._valid_to:
             self.set_access_token()
-        auth_header = "Bearer " + self.access_token.value
+        auth_header = "Bearer " + self.access_token._value
         return auth_header
 
-
-    '''Looking for id by name *'''
     def get_id(self, search_type: str, name: str) -> str:
-        # ПОКА ЧТО РАБОТАЕТ ТОЛЬКО ПОИСК ПО АРТИСТ
+        # TODO: ПОКА ЧТО РАБОТАЕТ ТОЛЬКО ПОИСК ПО АРТИСТ
         url = "https://api.spotify.com/v1/search"
 
         params = {
@@ -79,10 +71,8 @@ class SpotifyClient:
         response = requests.request("GET", url, headers=headers, params=params)
         return (response.json()["artists"]["items"][0]["id"])
 
-
-    '''Get all tracks of a particular album'''
     def get_tracks_by_album(self, album_name: str) -> list[str]:
-        # НЕ РАБОТАЕТ, ИЗ-ЗА get_id
+        # TODO: НЕ РАБОТАЕТ, ИЗ-ЗА get_id
         id = self.get_id("??????", album_name)
         url = f"https://api.spotify.com/v1/albums/{id}/tracks"
 
@@ -97,8 +87,6 @@ class SpotifyClient:
 
         return json_resp
 
-
-    '''Get all albums by a certain artist'''
     def get_albums_by_artist(self, artist_name: str) -> list[str]:
         id = self.get_id("artist", artist_name)
         url = f"https://api.spotify.com/v1/artists/{id}/albums"
@@ -112,14 +100,16 @@ class SpotifyClient:
         )
 
         json_resp = response.json()["items"]
-        albums = [item["name"] for item in json_resp] # MAX Len 20 - исправить
+        albums = [item["name"] for item in json_resp]  # MAX Len 20 - исправить
 
         return albums
 
 
-def test():
+def main():
     spotify_client = SpotifyClient()
-    print(spotify_client.get_albums_by_artist("Skeler"))
+    print(spotify_client.access_token)
+    print(spotify_client.get_albums_by_artist("Deftones"))
 
 
-test()
+if __name__ == '__main__':
+    main()

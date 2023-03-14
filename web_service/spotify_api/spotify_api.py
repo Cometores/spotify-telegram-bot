@@ -41,9 +41,9 @@ class SpotifyClient:
             f'Authorization': f'Basic {auth_header}'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        value = response.json()["access_token"]
-        _expires_in = response.json()["expires_in"]
+        response = requests.request("POST", url, headers=headers, data=payload).json()
+        value = response["access_token"]
+        _expires_in = response["expires_in"]
         valid_to = datetime.datetime.now() + datetime.timedelta(seconds=_expires_in)
 
         self.access_token = AccessToken(value, valid_to)
@@ -55,7 +55,6 @@ class SpotifyClient:
         return auth_header
 
     def get_id(self, search_type: str, name: str) -> str:
-        # TODO: ПОКА ЧТО РАБОТАЕТ ТОЛЬКО ПОИСК ПО АРТИСТ
         url = "https://api.spotify.com/v1/search"
 
         params = {
@@ -69,11 +68,10 @@ class SpotifyClient:
         }
 
         response = requests.request("GET", url, headers=headers, params=params)
-        return (response.json()["artists"]["items"][0]["id"])
+        return (response.json()[search_type + "s"]["items"][0]["id"])
 
-    def get_tracks_by_album(self, album_name: str) -> list[str]:
-        # TODO: НЕ РАБОТАЕТ, ИЗ-ЗА get_id
-        id = self.get_id("??????", album_name)
+    def get_tracks_from_album(self, album_name: str) -> list[str]:
+        id = self.get_id("album", album_name)
         url = f"https://api.spotify.com/v1/albums/{id}/tracks"
 
         auth_header = self.prepare_auth_header()
@@ -83,9 +81,10 @@ class SpotifyClient:
                 "Authorization": auth_header
             }
         )
-        json_resp = response.text
+        json_resp = response.json()["items"]
+        tracks = [item["name"] for item in json_resp]
 
-        return json_resp
+        return tracks
 
     def get_albums_by_artist(self, artist_name: str) -> list[str]:
         id = self.get_id("artist", artist_name)
@@ -104,11 +103,28 @@ class SpotifyClient:
 
         return albums
 
+    def get_top_tracks_by_artist(self, artist_name: str, market="ES") -> list[str]:
+        id = self.get_id("artist", artist_name)
+        url = f"https://api.spotify.com/v1/artists/{id}/top-tracks?market={market}"
+
+        auth_header = self.prepare_auth_header()
+        response = requests.get(
+            url,
+            headers={
+                "Authorization": auth_header
+            }
+        )
+
+        json_resp = response.json()["tracks"]
+        top_tracks = [item["name"] for item in json_resp]  # MAX Len 20 - исправить
+
+        return top_tracks
+
 
 def main():
     spotify_client = SpotifyClient()
     print(spotify_client.access_token)
-    print(spotify_client.get_albums_by_artist("Deftones"))
+    print(spotify_client.get_top_tracks_by_artist("bring me the horizon"))
 
 
 if __name__ == '__main__':

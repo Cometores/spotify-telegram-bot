@@ -1,6 +1,6 @@
 from flask import Flask
 
-from web_service.spotify_api.spotify_api import SpotifyClient
+from spotify_api.spotify_api import SpotifyClient
 
 app = Flask(__name__)
 

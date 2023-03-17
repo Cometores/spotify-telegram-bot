@@ -1,5 +1,4 @@
 import datetime
-import json
 import requests
 import base64
 from dataclasses import dataclass
@@ -20,13 +19,9 @@ class SpotifyClient:
     CLIENT_ID: str = None
     CLIENT_SECRET: str = None
 
-    def __init__(self):
-        # Extracting a secret from a file
-        with open("settings.json") as settings_file:
-            settings = json.load(settings_file)
-            self.CLIENT_ID = settings["CLIENT_ID"]
-            self.CLIENT_SECRET = settings["CLIENT_SECRET"]
-
+    def __init__(self, settings):
+        self.CLIENT_ID = settings["CLIENT_ID"]
+        self.CLIENT_SECRET = settings["CLIENT_SECRET"]
         self.set_acces_token()
 
     def set_acces_token(self):

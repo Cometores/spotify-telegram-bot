@@ -6,4 +6,4 @@
 /.idea
 /.venv
 __pycache__
-settings.json
+spotify_service/settings.json

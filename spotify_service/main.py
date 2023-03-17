@@ -1,9 +1,7 @@
 import json
 from os import environ
-
 from flask import Flask
-
-from spotify_api.spotify_api import SpotifyClient
+from spotify_service.spotify_api.spotify_api import SpotifyClient
 
 app = Flask(__name__)
 
@@ -24,6 +22,7 @@ def get_albums_by_artist(artist_name: str):
 def get_tracks_from_album(album_name: str):
     tracks = spotify_client.get_tracks_from_album(album_name)
     return tracks
+
 
 @app.route("/top_tracks_by_artist/<artist_name>")
 def get_top_tracks_by_artist(artist_name: str):

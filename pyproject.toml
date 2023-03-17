@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Cometores <anicometores@gmail.com>"]
 readme = "README.md"
-packages = [{include = "web_service"}]
+packages = [{include = "spotify_service"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"

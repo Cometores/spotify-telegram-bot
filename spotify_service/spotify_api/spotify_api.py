@@ -2,7 +2,7 @@ import datetime
 import requests
 import base64
 from dataclasses import dataclass
-
+from typing import List
 
 @dataclass
 class AccessToken:
@@ -65,7 +65,7 @@ class SpotifyClient:
         response = requests.request("GET", url, headers=headers, params=params)
         return (response.json()[search_type + "s"]["items"][0]["id"])
 
-    def get_tracks_from_album(self, album_name: str) -> list[str]:
+    def get_tracks_from_album(self, album_name: str) -> List[str]:
         id = self.get_id("album", album_name)
         url = f"https://api.spotify.com/v1/albums/{id}/tracks"
 
@@ -81,7 +81,7 @@ class SpotifyClient:
 
         return tracks
 
-    def get_albums_by_artist(self, artist_name: str) -> list[str]:
+    def get_albums_by_artist(self, artist_name: str) -> List[str]:
         id = self.get_id("artist", artist_name)
         url = f"https://api.spotify.com/v1/artists/{id}/albums"
 
@@ -98,7 +98,7 @@ class SpotifyClient:
 
         return albums
 
-    def get_top_tracks_by_artist(self, artist_name: str, market="ES") -> list[str]:
+    def get_top_tracks_by_artist(self, artist_name: str, market="ES") -> List[str]:
         id = self.get_id("artist", artist_name)
         url = f"https://api.spotify.com/v1/artists/{id}/top-tracks?market={market}"
 
@@ -114,13 +114,3 @@ class SpotifyClient:
         top_tracks = [item["name"] for item in json_resp]  # MAX Len 20 - исправить
 
         return top_tracks
-
-
-def main():
-    spotify_client = SpotifyClient()
-    print(spotify_client.access_token)
-    print(spotify_client.get_top_tracks_by_artist("bring me the horizon"))
-
-
-if __name__ == '__main__':
-    main()

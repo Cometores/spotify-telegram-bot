@@ -19,7 +19,7 @@ class SpotifyClient:
     CLIENT_ID: str = None
     CLIENT_SECRET: str = None
 
-    def __init__(self, settings):
+    def __init__(self, settings: List[str]):
         self.CLIENT_ID = settings["CLIENT_ID"]
         self.CLIENT_SECRET = settings["CLIENT_SECRET"]
         self.set_acces_token()
@@ -43,7 +43,7 @@ class SpotifyClient:
 
         self.access_token = AccessToken(value, valid_to)
 
-    def prepare_auth_header(self):
+    def prepare_auth_header(self) -> str:
         if self.access_token is None or datetime.datetime.now() > self.access_token._valid_to:
             self.set_access_token()
         auth_header = "Bearer " + self.access_token._value

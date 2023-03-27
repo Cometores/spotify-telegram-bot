@@ -15,7 +15,7 @@ def index():
 @app.route("/albums_by_artist/<artist_name>")
 def get_albums_by_artist(artist_name: str):
     albums = spotify_client.get_albums_by_artist(artist_name)
-    return albums
+    return environ.get('settings_file_path')
 
 
 @app.route("/tracks_from_album/<album_name>")

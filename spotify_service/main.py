@@ -9,7 +9,14 @@ app = Flask(__name__)
 @app.route("/index")
 @app.route("/")
 def index():
-    return environ.get('settings_file_path')
+    settings_file_path = environ.get('settings_file_path') \
+        if environ.get('settings_file_path') is not None else "settings.json"
+
+    with open(settings_file_path) as settings_file:
+        settings = json.load(settings_file)
+
+
+    return settings["CLIENT_ID"] + " \t" + settings["CLIENT_SECRET"]
 
 
 @app.route("/albums_by_artist/<artist_name>")

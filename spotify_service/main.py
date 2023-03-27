@@ -9,13 +9,13 @@ app = Flask(__name__)
 @app.route("/index")
 @app.route("/")
 def index():
-    return settings_file_path
+    return environ.get('settings_file_path')
 
 
 @app.route("/albums_by_artist/<artist_name>")
 def get_albums_by_artist(artist_name: str):
     albums = spotify_client.get_albums_by_artist(artist_name)
-    return environ.get('settings_file_path')
+    return albums
 
 
 @app.route("/tracks_from_album/<album_name>")

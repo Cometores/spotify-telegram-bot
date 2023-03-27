@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route("/index")
 @app.route("/")
 def index():
-    return "Spotify API"
+    return settings_file_path
 
 
 @app.route("/albums_by_artist/<artist_name>")

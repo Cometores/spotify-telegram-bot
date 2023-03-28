@@ -46,4 +46,4 @@ settings_file_path = environ.get('settings_file_path') \
 with open(settings_file_path) as settings_file:
     settings = json.load(settings_file)
 spotify_client = SpotifyClient(settings)
-app.run(debug=True)
+#app.run(debug=True)

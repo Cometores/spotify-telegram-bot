@@ -9,14 +9,7 @@ app = Flask(__name__)
 @app.route("/index")
 @app.route("/")
 def index():
-    settings_file_path = environ.get('settings_file_path') \
-        if environ.get('settings_file_path') is not None else "settings.json"
-
-    with open(settings_file_path) as settings_file:
-        settings = json.load(settings_file)
-
-
-    return settings["CLIENT_ID"] + " \t" + settings["CLIENT_SECRET"]
+    return "Spotify API"
 
 
 @app.route("/albums_by_artist/<artist_name>")
@@ -37,12 +30,20 @@ def get_top_tracks_by_artist(artist_name: str):
     return top_tracks
 
 
-if __name__ == "__main__":
-    settings_file_path = environ.get('settings_file_path') \
-        if environ.get('settings_file_path') is not None else "settings.json"
+# if __name__ == "__main__":
+#     settings_file_path = environ.get('settings_file_path') \
+#         if environ.get('settings_file_path') is not None else "settings.json"
+#
+#     with open(settings_file_path) as settings_file:
+#         settings = json.load(settings_file)
+#
+#     spotify_client = SpotifyClient(settings)
+#     app.run(debug=True)
 
-    with open(settings_file_path) as settings_file:
-        settings = json.load(settings_file)
 
-    spotify_client = SpotifyClient(settings)
-    app.run(debug=True)
+settings_file_path = environ.get('settings_file_path') \
+    if environ.get('settings_file_path') is not None else "settings.json"
+with open(settings_file_path) as settings_file:
+    settings = json.load(settings_file)
+spotify_client = SpotifyClient(settings)
+app.run(debug=True)

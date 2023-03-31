@@ -1,5 +1,7 @@
 import json
 import logging
+
+import requests
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     Application,
@@ -63,7 +65,13 @@ async def input_top_tracks(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     return TOP_TRACKS
 
 async def get_top_tracks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    answer = f"Top Tracks from {update.message.text }:"
+    artist = update.message.text
+
+    tracks = requests.get(f"https://spotify-telegram.onrender.com/top_tracks_by_artist/"
+                          f"{artist.replace(' ', '_')}").json()
+
+    answer = f"Top Tracks from {artist}:" + '\n' + \
+             '\n'.join(tracks)
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,

@@ -1,3 +1,4 @@
+import json
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
@@ -5,126 +6,117 @@ from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
     ContextTypes,
-    ConversationHandler,
+    ConversationHandler, MessageHandler, filters,
 )
 
-# Enable logging
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-#Stages
-START_ROUTES, END_ROUTES = range(2)
-# Callback data
-TOP_TRACKS, ALBUMS, TRACKS_FROM_ALBUM = range(3)
+INPUT_SEARCH_TYPE, TOP_TRACKS, ALBUMS, TRACKS_FROM_ALBUM = range(4)
+
+keyboard_start = [
+    [
+        InlineKeyboardButton("top tracks by artist", callback_data="top tracks by artist"),
+        InlineKeyboardButton("albums by artist", callback_data="albums by artist")
+    ],
+    [
+        InlineKeyboardButton("tracks from album", callback_data="tracks from album")
+    ]
+]
+
+keyboard_question = [
+    [
+        InlineKeyboardButton("Restart", callback_data="Restart"),
+        InlineKeyboardButton("End", callback_data="End"),
+    ]
+]
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     logger.info("User %s started the conversation.", user.first_name)
+    reply_markup = InlineKeyboardMarkup(keyboard_start)
 
-    text_hi = (
-        "Hi! I am Spotify Bot"
-    )
-    text = (
-        "You can choose from a variety of options."
-    )
+    await update.message.reply_text("Hi! I am Spotify Bot")
+    await update.message.reply_text("You can choose from a variety of options.", reply_markup=reply_markup)
 
-    keyboard = [
-        [
-            InlineKeyboardButton("top tracks", callback_data=str(TOP_TRACKS)),
-            InlineKeyboardButton("albums by artist", callback_data=str(ALBUMS))
-        ],
-        [
-            InlineKeyboardButton("tracks from album", callback_data=str(ALBUMS))
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text(text_hi)
-
-    # Send message with text and appended InlineKeyboard
-    await update.message.reply_text(text, reply_markup=reply_markup)
-
-    # Tell ConversationHandler that we're in state `FIRST` now
-    return START_ROUTES
+    return INPUT_SEARCH_TYPE
 
 
 async def start_over(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-
     query = update.callback_query
-    # CallbackQueries need to be answered, even if no notification to the user is needed
-    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     await query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("top tracks", callback_data=str(TOP_TRACKS)),
-            InlineKeyboardButton("albums by artist", callback_data=str(ALBUMS))
-        ],
-        [
-            InlineKeyboardButton("tracks from album", callback_data=str(ALBUMS))
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await query.edit_message_text(text="Start handler, Choose a route", reply_markup=reply_markup)
-    return START_ROUTES
+    reply_markup = InlineKeyboardMarkup(keyboard_start)
+
+    await query.edit_message_text(text="Start again", reply_markup=reply_markup)
+    return INPUT_SEARCH_TYPE
 
 
-async def top_tracks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def input_top_tracks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    reply_markup = InlineKeyboardMarkup(keyboard_question)
+    await query.edit_message_text(text="Type your artist", reply_markup=reply_markup)
+
+    return TOP_TRACKS
+
+async def get_top_tracks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    answer = f"Top Tracks from {update.message.text }:"
+
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=answer
+    )
+
+    return ConversationHandler.END
+
+
+async def input_albums(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    reply_markup = InlineKeyboardMarkup(keyboard_question)
+    await query.edit_message_text(text="Type your artist", reply_markup=reply_markup)
+
+    return ALBUMS
+
+
+async def get_albums(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    answer = f"Albums by {update.message.text}:"
+
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=answer
+    )
+
+    return ConversationHandler.END
+
+
+async def input_tracks_from_album(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Show new choice of buttons"""
     query = update.callback_query
     await query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("start over", callback_data=str(START_ROUTES)),
-            InlineKeyboardButton("end", callback_data=str(END_ROUTES)),
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(
-        text="Type your artist", reply_markup=reply_markup
+
+    reply_markup = InlineKeyboardMarkup(keyboard_question)
+    await query.edit_message_text(text="Type your album", reply_markup=reply_markup)
+
+    return TRACKS_FROM_ALBUM
+
+
+async def get_tracks_from_album(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    answer = f"Tracks from Album {update.message.text}:"
+
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=answer
     )
-    return END_ROUTES
 
-
-async def albums(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Show new choice of buttons"""
-    query = update.callback_query
-    await query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("start over", callback_data=str(START_ROUTES)),
-            InlineKeyboardButton("end", callback_data=str(END_ROUTES)),
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(
-        text="Type your artist", reply_markup=reply_markup
-    )
-    return END_ROUTES
-
-
-async def tracks_from_album(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Show new choice of buttons"""
-    query = update.callback_query
-    await query.answer()
-    keyboard = [
-        [
-            InlineKeyboardButton("start over", callback_data=str(START_ROUTES)),
-            InlineKeyboardButton("end", callback_data=str(END_ROUTES)),
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await query.edit_message_text(
-        text="Type your artist", reply_markup=reply_markup
-    )
-    return END_ROUTES
+    return ConversationHandler.END
 
 
 async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Returns `ConversationHandler.END`, which tells the
-    ConversationHandler that the conversation is over.
-    """
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(text="See you next time!")
@@ -132,11 +124,8 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 def main() -> None:
-    application = Application.builder().token("6085384433:AAGwBrwLcgioU8w8NESqsaYcpjybxV6tSi4").build()
+    application = Application.builder().token(token).build()
 
-    # Setup conversation handler with the states FIRST and SECOND
-    # Use the pattern parameter to pass CallbackQueries with specific
-    # data pattern to the corresponding handlers.
     # ^ means "start of line/string"
     # $ means "end of line/string"
     # So ^ABC$ will only allow 'ABC'
@@ -144,17 +133,28 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
-            START_ROUTES: [
-                CallbackQueryHandler(top_tracks, pattern="^" + str(TOP_TRACKS) + "$"),
-                CallbackQueryHandler(albums, pattern="^" + str(ALBUMS) + "$"),
-                CallbackQueryHandler(tracks_from_album, pattern="^" + str(TRACKS_FROM_ALBUM) + "$"),
+            INPUT_SEARCH_TYPE: [
+                CallbackQueryHandler(input_top_tracks, pattern="^top tracks by artist$"),
+                CallbackQueryHandler(input_albums, pattern="^albums by artist$"),
+                CallbackQueryHandler(input_tracks_from_album, pattern="^tracks from album$"),
             ],
-            END_ROUTES: [
-                CallbackQueryHandler(start_over, pattern="^" + str(START_ROUTES) + "$"),
-                CallbackQueryHandler(end, pattern="^" + str(END_ROUTES) + "$"),
+            TOP_TRACKS: [
+                CallbackQueryHandler(start_over, pattern="^Restart$"),
+                CallbackQueryHandler(end, pattern="^End$"),
+                MessageHandler(filters.TEXT & ~(filters.COMMAND), get_top_tracks)
+            ],
+            ALBUMS: [
+                CallbackQueryHandler(start_over, pattern="^Restart$"),
+                CallbackQueryHandler(end, pattern="^End$"),
+                MessageHandler(filters.TEXT & ~(filters.COMMAND), get_albums)
+            ],
+            TRACKS_FROM_ALBUM: [
+                CallbackQueryHandler(start_over, pattern="^Restart$"),
+                CallbackQueryHandler(end, pattern="^End$"),
+                MessageHandler(filters.TEXT & ~(filters.COMMAND), get_tracks_from_album)
             ],
         },
-        fallbacks=[CommandHandler("start", start)],
+        fallbacks=[CommandHandler("start", start)]
     )
 
     # Add ConversationHandler to application that will be used for handling updates
@@ -165,4 +165,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    with open("settings.json") as settings_file:
+        settings = json.load(settings_file)
+    token = settings["TOKEN"]
     main()

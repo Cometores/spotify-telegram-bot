@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "web-service"
+name = "spotify-telegram-bot"
 version = "0.1.0"
 description = ""
 authors = ["Cometores <anicometores@gmail.com>"]
 readme = "README.md"
-packages = [{include = "spotify_service"}]
+packages = [{include = "spotify_api"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"

@@ -6,4 +6,4 @@
 /.idea
 /.venv
 __pycache__
-spotify_service/settings.json
+telegram_bot/settings.json

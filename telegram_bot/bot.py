@@ -1,7 +1,9 @@
 import json
 import logging
+from os import environ
 
 import requests
+from spotify_api.api import SpotifyClient
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     Application,
@@ -64,14 +66,12 @@ async def input_top_tracks(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
     return TOP_TRACKS
 
+
 async def get_top_tracks(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     artist = update.message.text
-
-    tracks = requests.get(f"https://spotify-telegram.onrender.com/top_tracks_by_artist/"
-                          f"{artist.replace(' ', '_')}").json()
-
+    top_tracks = spotify_client.get_top_tracks_by_artist(artist)
     answer = f"Top Tracks from {artist}:" + '\n' + \
-             '\n'.join(tracks)
+             '\n'.join(top_tracks)
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
@@ -92,7 +92,10 @@ async def input_albums(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
 
 
 async def get_albums(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    answer = f"Albums by {update.message.text}:"
+    artist = update.message.text
+    albums = spotify_client.get_albums_by_artist(artist)
+    answer = f"Albums by {artist}:" + '\n' + \
+             '\n'.join(albums)
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
@@ -114,7 +117,10 @@ async def input_tracks_from_album(update: Update, context: ContextTypes.DEFAULT_
 
 
 async def get_tracks_from_album(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    answer = f"Tracks from Album {update.message.text}:"
+    album = update.message.text
+    tracks = spotify_client.get_albums_by_artist(album)
+    answer = f"Tracks from {album}:" + '\n' + \
+             '\n'.join(tracks)
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
@@ -165,15 +171,15 @@ def main() -> None:
         fallbacks=[CommandHandler("start", start)]
     )
 
-    # Add ConversationHandler to application that will be used for handling updates
     application.add_handler(conv_handler)
-
-    # Run the bot until the user presses Ctrl-C
     application.run_polling()
 
 
 if __name__ == "__main__":
-    with open("settings.json") as settings_file:
+    settings_file_path = environ.get('settings_file_path') \
+        if environ.get('settings_file_path') is not None else "settings.json"
+    with open(settings_file_path) as settings_file:
         settings = json.load(settings_file)
+    spotify_client = SpotifyClient(settings)
     token = settings["TOKEN"]
     main()

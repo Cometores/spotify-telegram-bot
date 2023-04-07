@@ -20,7 +20,7 @@ class SpotifyClient:
     CLIENT_ID: str = None
     CLIENT_SECRET: str = None
 
-    def __init__(self, settings: dict[str, str]):
+    def __init__(self, settings):
         self.CLIENT_ID = settings["CLIENT_ID"]
         self.CLIENT_SECRET = settings["CLIENT_SECRET"]
         self.set_access_token()

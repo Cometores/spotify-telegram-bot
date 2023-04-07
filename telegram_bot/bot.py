@@ -35,10 +35,9 @@ class TelegramBot:
         ]
     ]
 
-    def __init__(self, settings: dict[str, str]):
+    def __init__(self, settings):
         self.spotify_client = SpotifyClient(settings)
         self.application = Application.builder().token(settings["TOKEN"]).build()
-
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         user = update.message.from_user
@@ -50,7 +49,6 @@ class TelegramBot:
 
         return self.INPUT_SEARCH_TYPE
 
-
     async def start_over(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
@@ -60,7 +58,6 @@ class TelegramBot:
         await query.edit_message_text(text="Start again", reply_markup=reply_markup)
         return self.INPUT_SEARCH_TYPE
 
-
     async def input_top_tracks(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
@@ -69,7 +66,6 @@ class TelegramBot:
         await query.edit_message_text(text="Type your artist", reply_markup=reply_markup)
 
         return self.TOP_TRACKS
-
 
     async def get_top_tracks(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         artist = update.message.text
@@ -84,7 +80,6 @@ class TelegramBot:
 
         return ConversationHandler.END
 
-
     async def input_albums(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
@@ -93,7 +88,6 @@ class TelegramBot:
         await query.edit_message_text(text="Type your artist", reply_markup=reply_markup)
 
         return self.ALBUMS
-
 
     async def get_albums(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         artist = update.message.text
@@ -108,7 +102,6 @@ class TelegramBot:
 
         return ConversationHandler.END
 
-
     async def input_tracks_from_album(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Show new choice of buttons"""
         query = update.callback_query
@@ -118,7 +111,6 @@ class TelegramBot:
         await query.edit_message_text(text="Type your album", reply_markup=reply_markup)
 
         return self.TRACKS_FROM_ALBUM
-
 
     async def get_tracks_from_album(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         album = update.message.text
@@ -133,13 +125,11 @@ class TelegramBot:
 
         return ConversationHandler.END
 
-
-    async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def end(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
         await query.answer()
         await query.edit_message_text(text="See you next time!")
         return ConversationHandler.END
-
 
     def run(self) -> None:
         # ^ means "start of line/string"

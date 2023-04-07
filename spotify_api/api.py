@@ -2,7 +2,7 @@ import datetime
 import requests
 import base64
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict
 
 
 @dataclass
@@ -20,7 +20,7 @@ class SpotifyClient:
     CLIENT_ID: str = None
     CLIENT_SECRET: str = None
 
-    def __init__(self, settings):
+    def __init__(self, settings: Dict[str, str]):
         self.CLIENT_ID = settings["CLIENT_ID"]
         self.CLIENT_SECRET = settings["CLIENT_SECRET"]
         self.set_access_token()

@@ -10,6 +10,7 @@ packages = [{include = "spotify_api"}]
 python = "^3.9"
 requests = "^2.28.1"
 python-telegram-bot = "^20.2"
+typing-extensions = "^4.5.0"
 
 
 [build-system]

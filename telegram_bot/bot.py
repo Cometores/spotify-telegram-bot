@@ -1,6 +1,8 @@
 import json
 import logging
 from os import environ
+from typing import Dict
+
 from spotify_api.api import SpotifyClient
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
@@ -35,7 +37,7 @@ class TelegramBot:
         ]
     ]
 
-    def __init__(self, settings):
+    def __init__(self, settings: Dict[str, str]):
         self.spotify_client = SpotifyClient(settings)
         self.application = Application.builder().token(settings["TOKEN"]).build()
 

@@ -6,4 +6,4 @@
 /.idea
 /.venv
 __pycache__
-telegram_bot/settings.json
+settings.json

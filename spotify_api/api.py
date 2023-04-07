@@ -4,14 +4,15 @@ import base64
 from dataclasses import dataclass
 from typing import List
 
+
 @dataclass
 class AccessToken:
-    _value: str = None
-    _valid_to: datetime.datetime = None
+    value: str = None
+    valid_to: datetime.datetime = None
 
     def __str__(self):
-        return f"AccessToken value: {self._value}\n" \
-               f"valid to: {self._valid_to.time()}"
+        return f"AccessToken value: {self.value}\n" \
+               f"valid to: {self.valid_to.time()}"
 
 
 class SpotifyClient:
@@ -19,12 +20,12 @@ class SpotifyClient:
     CLIENT_ID: str = None
     CLIENT_SECRET: str = None
 
-    def __init__(self, settings: List[str]):
+    def __init__(self, settings: dict[str, str]):
         self.CLIENT_ID = settings["CLIENT_ID"]
         self.CLIENT_SECRET = settings["CLIENT_SECRET"]
-        self.set_acces_token()
+        self.set_access_token()
 
-    def set_acces_token(self):
+    def set_access_token(self):
         # Auth-Login information is transmitted in base64 format
         auth_header_bytes = base64.b64encode(bytes(
             (self.CLIENT_ID + ":" + self.CLIENT_SECRET), 'utf-8'))
@@ -44,9 +45,9 @@ class SpotifyClient:
         self.access_token = AccessToken(value, valid_to)
 
     def prepare_auth_header(self) -> str:
-        if self.access_token is None or datetime.datetime.now() > self.access_token._valid_to:
+        if self.access_token is None or datetime.datetime.now() > self.access_token.valid_to:
             self.set_access_token()
-        auth_header = "Bearer " + self.access_token._value
+        auth_header = "Bearer " + self.access_token.value
         return auth_header
 
     def get_id(self, search_type: str, name: str) -> str:
@@ -63,7 +64,7 @@ class SpotifyClient:
         }
 
         response = requests.request("GET", url, headers=headers, params=params)
-        return (response.json()[search_type + "s"]["items"][0]["id"])
+        return response.json()[search_type + "s"]["items"][0]["id"]
 
     def get_tracks_from_album(self, album_name: str) -> List[str]:
         id = self.get_id("album", album_name)
